@@ -1,0 +1,142 @@
+Model: DeepSeek-R1-Distill-Llama-8B
+Dataset: 100TFQA
+Prompting strategy: few-shot-cot
+Max new tokens: 1024
+
+Answer the following true or false questions. Think step-by-step and provide a concise reasoning process that justifies your answer. Based on the reasoning, determine whether the statement is True or False and provide your output in the following valid JSON format: ```json {"Explanation":"{concise reasoning}", "Answer":"{True/False}"}``` Ensure the explanation is minimal sufficient. Do not include any additional text. 
+
+Statement:The total length of the Great Wall of China adds up to 13,171 miles.
+```json {"Explanation":"that distance is half the length of the equator.", "Answer":"True"}```
+
+Statement:Soccer (football) is estimated to have more than 2 billion fans around the world.
+```json {"Explanation":"Soccer is the world's most popular sport with an estimated 4 billion fans worldwide. More than half the world's population tunes in to watch the World Cup every four years.", "Answer":"False"}```
+
+Statement:Taste buds can only be found on the tongue.
+```json {"Explanation":"while most taste buds are on your tongue, there are also taste cells in the back of your throat, on your epiglottis, your nose and sinuses, throat and upper part of the esophagus.", "Answer":"False"}```
+
+Statement:John Glenn became the oldest astronaut when he traveled to space at the age of 53.
+```json {"Explanation":"John Glenn was actually 77 years old.", "Answer":"False"}```
+
+Statement:Alaska has the most active volcanoes of any state in the United States.
+
+
+Answer the following true or false questions. Think step-by-step and provide a concise reasoning process that justifies your answer. Based on the reasoning, determine whether the statement is True or False and provide your output in the following valid JSON format: ```json {" Explanation":"{concise reasoning}", " Answer":"{True/False}"}``` Ensure the explanation is minimal sufficient. Do not include any additional text. 
+
+ Statement:The total length of the Great Wall of China adds up to 13,171 miles.
+```json {" Explanation":"that distance is half the length of the equator.", " Answer":"True"}```
+
+ Statement:Soccer (football) is estimated to have more than 2 billion fans around the world.
+```json {" Explanation":"Soccer is the world's most popular sport with an estimated 4 billion fans worldwide. More than half the world's population tunes in to watch the World Cup every four years.", " Answer":"False"}```
+
+ Statement:Taste buds can only be found on the tongue.
+```json {" Explanation":"while most taste buds are on your tongue, there are also taste cells in the back of your throat, on your epiglottis, your nose and sinuses, throat and upper part of the esophagus.", " Answer":"False"}```
+
+ Statement:John Glenn became the oldest astronaut when he traveled to space at the age of 53.
+```json {" Explanation":"John Glenn was actually 77 years old.", " Answer":"False"}```
+
+ Statement:Alaska has the most active volcanoes of any state in the United States.
+
+
+Answer the following true or false questions. Think step-by-step and provide a concise reasoning process that justifies your answer. Based on the reasoning, determine whether the statement is True or False and provide your output in the following valid JSON format: ```json {"EXPLANATION":"{concise reasoning}", "ANSWER":"{True/False}"}``` Ensure the explanation is minimal sufficient. Do not include any additional text. 
+
+STATEMENT:The total length of the Great Wall of China adds up to 13,171 miles.
+```json {"EXPLANATION":"that distance is half the length of the equator.", "ANSWER":"True"}```
+
+STATEMENT:Soccer (football) is estimated to have more than 2 billion fans around the world.
+```json {"EXPLANATION":"Soccer is the world's most popular sport with an estimated 4 billion fans worldwide. More than half the world's population tunes in to watch the World Cup every four years.", "ANSWER":"False"}```
+
+STATEMENT:Taste buds can only be found on the tongue.
+```json {"EXPLANATION":"while most taste buds are on your tongue, there are also taste cells in the back of your throat, on your epiglottis, your nose and sinuses, throat and upper part of the esophagus.", "ANSWER":"False"}```
+
+STATEMENT:John Glenn became the oldest astronaut when he traveled to space at the age of 53.
+```json {"EXPLANATION":"John Glenn was actually 77 years old.", "ANSWER":"False"}```
+
+STATEMENT:Alaska has the most active volcanoes of any state in the United States.
+
+
+Answer the following true or false questions. Think step-by-step and provide a concise reasoning process that justifies your answer. Based on the reasoning, determine whether the statement is True or False and provide your output in the following valid JSON format: ```json {" EXPLANATION":"{concise reasoning}", " ANSWER":"{True/False}"}``` Ensure the explanation is minimal sufficient. Do not include any additional text. 
+
+ STATEMENT:The total length of the Great Wall of China adds up to 13,171 miles.
+```json {" EXPLANATION":"that distance is half the length of the equator.", " ANSWER":"True"}```
+
+ STATEMENT:Soccer (football) is estimated to have more than 2 billion fans around the world.
+```json {" EXPLANATION":"Soccer is the world's most popular sport with an estimated 4 billion fans worldwide. More than half the world's population tunes in to watch the World Cup every four years.", " ANSWER":"False"}```
+
+ STATEMENT:Taste buds can only be found on the tongue.
+```json {" EXPLANATION":"while most taste buds are on your tongue, there are also taste cells in the back of your throat, on your epiglottis, your nose and sinuses, throat and upper part of the esophagus.", " ANSWER":"False"}```
+
+ STATEMENT:John Glenn became the oldest astronaut when he traveled to space at the age of 53.
+```json {" EXPLANATION":"John Glenn was actually 77 years old.", " ANSWER":"False"}```
+
+ STATEMENT:Alaska has the most active volcanoes of any state in the United States.
+
+
+Answer the following true or false questions. Think step-by-step and provide a concise reasoning process that justifies your answer. Based on the reasoning, determine whether the statement is True or False and provide your output in the following valid JSON format: ```json {"Explanation": "{concise reasoning}", "Answer": "{True/False}"}``` Ensure the explanation is minimal sufficient. Do not include any additional text. 
+
+Statement: The total length of the Great Wall of China adds up to 13,171 miles.
+```json {"Explanation": "that distance is half the length of the equator.", "Answer": "True"}```
+
+Statement: Soccer (football) is estimated to have more than 2 billion fans around the world.
+```json {"Explanation": "Soccer is the world's most popular sport with an estimated 4 billion fans worldwide. More than half the world's population tunes in to watch the World Cup every four years.", "Answer": "False"}```
+
+Statement: Taste buds can only be found on the tongue.
+```json {"Explanation": "while most taste buds are on your tongue, there are also taste cells in the back of your throat, on your epiglottis, your nose and sinuses, throat and upper part of the esophagus.", "Answer": "False"}```
+
+Statement: John Glenn became the oldest astronaut when he traveled to space at the age of 53.
+```json {"Explanation": "John Glenn was actually 77 years old.", "Answer": "False"}```
+
+Statement: Alaska has the most active volcanoes of any state in the United States.
+
+
+Answer the following true or false questions. Think step-by-step and provide a concise reasoning process that justifies your answer. Based on the reasoning, determine whether the statement is True or False and provide your output in the following valid JSON format: ```json {" Explanation": "{concise reasoning}", " Answer": "{True/False}"}``` Ensure the explanation is minimal sufficient. Do not include any additional text. 
+
+ Statement: The total length of the Great Wall of China adds up to 13,171 miles.
+```json {" Explanation": "that distance is half the length of the equator.", " Answer": "True"}```
+
+ Statement: Soccer (football) is estimated to have more than 2 billion fans around the world.
+```json {" Explanation": "Soccer is the world's most popular sport with an estimated 4 billion fans worldwide. More than half the world's population tunes in to watch the World Cup every four years.", " Answer": "False"}```
+
+ Statement: Taste buds can only be found on the tongue.
+```json {" Explanation": "while most taste buds are on your tongue, there are also taste cells in the back of your throat, on your epiglottis, your nose and sinuses, throat and upper part of the esophagus.", " Answer": "False"}```
+
+ Statement: John Glenn became the oldest astronaut when he traveled to space at the age of 53.
+```json {" Explanation": "John Glenn was actually 77 years old.", " Answer": "False"}```
+
+ Statement: Alaska has the most active volcanoes of any state in the United States.
+
+
+Answer the following true or false questions. Think step-by-step and provide a concise reasoning process that justifies your answer. Based on the reasoning, determine whether the statement is True or False and provide your output in the following valid JSON format: ```json {"EXPLANATION": "{concise reasoning}", "ANSWER": "{True/False}"}``` Ensure the explanation is minimal sufficient. Do not include any additional text. 
+
+STATEMENT: The total length of the Great Wall of China adds up to 13,171 miles.
+```json {"EXPLANATION": "that distance is half the length of the equator.", "ANSWER": "True"}```
+
+STATEMENT: Soccer (football) is estimated to have more than 2 billion fans around the world.
+```json {"EXPLANATION": "Soccer is the world's most popular sport with an estimated 4 billion fans worldwide. More than half the world's population tunes in to watch the World Cup every four years.", "ANSWER": "False"}```
+
+STATEMENT: Taste buds can only be found on the tongue.
+```json {"EXPLANATION": "while most taste buds are on your tongue, there are also taste cells in the back of your throat, on your epiglottis, your nose and sinuses, throat and upper part of the esophagus.", "ANSWER": "False"}```
+
+STATEMENT: John Glenn became the oldest astronaut when he traveled to space at the age of 53.
+```json {"EXPLANATION": "John Glenn was actually 77 years old.", "ANSWER": "False"}```
+
+STATEMENT: Alaska has the most active volcanoes of any state in the United States.
+
+
+Answer the following true or false questions. Think step-by-step and provide a concise reasoning process that justifies your answer. Based on the reasoning, determine whether the statement is True or False and provide your output in the following valid JSON format: ```json {" EXPLANATION": "{concise reasoning}", " ANSWER": "{True/False}"}``` Ensure the explanation is minimal sufficient. Do not include any additional text. 
+
+ STATEMENT: The total length of the Great Wall of China adds up to 13,171 miles.
+```json {" EXPLANATION": "that distance is half the length of the equator.", " ANSWER": "True"}```
+
+ STATEMENT: Soccer (football) is estimated to have more than 2 billion fans around the world.
+```json {" EXPLANATION": "Soccer is the world's most popular sport with an estimated 4 billion fans worldwide. More than half the world's population tunes in to watch the World Cup every four years.", " ANSWER": "False"}```
+
+ STATEMENT: Taste buds can only be found on the tongue.
+```json {" EXPLANATION": "while most taste buds are on your tongue, there are also taste cells in the back of your throat, on your epiglottis, your nose and sinuses, throat and upper part of the esophagus.", " ANSWER": "False"}```
+
+ STATEMENT: John Glenn became the oldest astronaut when he traveled to space at the age of 53.
+```json {" EXPLANATION": "John Glenn was actually 77 years old.", " ANSWER": "False"}```
+
+ STATEMENT: Alaska has the most active volcanoes of any state in the United States.
+
+
+{"elapsed_time": 9646.102388620377, "skip": 0}
