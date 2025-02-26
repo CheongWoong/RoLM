@@ -1,0 +1,22 @@
+\begin{table}[ht]
+\centering
+\caption{Correlation analysis between format distance and last layer embedding distance. Each cell represents Spearman correlation coefficient and p-value (in parenthesis).}
+\label{tab:last_layer_embedding_distance_correlation_with_format_distance}
+\begin{tabular}{c|c|cccc}
+\toprule
+Model & Task & Zero-shot & Zero-shot CoT & Few-shot & Few-shot CoT \\
+\midrule\midrule
+\multirow{4}{*}{Phi-3.5-mini-instruct}
+      & CommonsenseQA & 0.74 (5.433e-06) & 0.66 (1.269e-04) & 0.64 (2.822e-04) & - \\
+      & QASC & 0.73 (9.136e-06) & 0.65 (1.645e-04) & 0.69 (5.707e-05) & 0.64 (2.280e-04) \\
+      & 100TFQA & 0.82 (8.478e-08) & 0.67 (8.601e-05) & 0.60 (6.634e-04) & 0.69 (5.249e-05) \\
+      & GSM8K & - & 0.76 (2.224e-06) & - & 0.64 (2.528e-04) \\
+\midrule
+\multirow{4}{*}{Llama-3.1-8B-Instruct}
+      & CommonsenseQA & 0.72 (1.490e-05) & 0.72 (1.720e-05) & 0.70 (3.124e-05) & - \\
+      & QASC & 0.71 (1.988e-05) & 0.66 (1.176e-04) & 0.71 (2.174e-05) & 0.56 (0.002) \\
+      & 100TFQA & 0.61 (5.148e-04) & 0.57 (0.002) & 0.64 (2.286e-04) & 0.60 (7.982e-04) \\
+      & GSM8K & - & 0.57 (0.001) & - & 0.71 (2.075e-05) \\
+\bottomrule
+\end{tabular}
+\end{table}

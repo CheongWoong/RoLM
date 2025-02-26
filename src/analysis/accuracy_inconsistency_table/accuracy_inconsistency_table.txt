@@ -1,4 +1,4 @@
-\begin{table*}[t!]
+\begin{table*}[t]
 \centering
 \caption{Mean accuracy (left) and setwise inconsistency (right) across different tasks, models and prompting strategies. Blue values indicate performance improvement over zero-shot (or the leftmost strategy if not available), while red values denote performance drop.}
 \label{tab:accuracy_inconsistency}

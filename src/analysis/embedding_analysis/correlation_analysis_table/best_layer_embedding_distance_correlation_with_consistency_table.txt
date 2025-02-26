@@ -1,0 +1,22 @@
+\begin{table}[ht]
+\centering
+\caption{Correlation analysis between best layer embedding distance and pairwise consistency. A layer in which the correlation is maximized is selected as the best layer. Each cell represents Spearman correlation coefficient and p-value (in parenthesis).}
+\label{tab:best_layer_embedding_distance_correlation}
+\begin{tabular}{c|c|cccc}
+\toprule
+Model & Task & Zero-shot & Zero-shot CoT & Few-shot & Few-shot CoT \\
+\midrule\midrule
+\multirow{4}{*}{Phi-3.5-mini-instruct}
+      & CommonsenseQA & -0.72 (1.717e-05) & -0.88 (1.089e-09) & -0.57 (0.002) & - \\
+      & QASC & -0.52 (0.004) & -0.69 (4.463e-05) & -0.74 (5.978e-06) & -0.31 (0.110) \\
+      & 100TFQA & -0.87 (1.650e-09) & -0.57 (0.002) & -0.39 (0.041) & -0.05 (0.811) \\
+      & GSM8K & - & -0.48 (0.009) & - & -0.61 (6.155e-04) \\
+\midrule
+\multirow{4}{*}{Llama-3.1-8B-Instruct}
+      & CommonsenseQA & -0.60 (6.507e-04) & -0.55 (0.002) & -0.37 (0.051) & - \\
+      & QASC & -0.56 (0.002) & -0.61 (5.842e-04) & -0.52 (0.004) & -0.34 (0.072) \\
+      & 100TFQA & -0.34 (0.080) & -0.33 (0.091) & -0.49 (0.008) & -0.42 (0.025) \\
+      & GSM8K & - & -0.35 (0.064) & - & -0.60 (6.706e-04) \\
+\bottomrule
+\end{tabular}
+\end{table}
