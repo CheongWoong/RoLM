@@ -1,0 +1,42 @@
+\begin{table*}[t!]
+\centering
+\caption{Mean accuracy (left) and setwise inconsistency (right) across different tasks, models and prompting strategies. Blue values indicate performance improvement over zero-shot (or the leftmost strategy if not available), while red values denote performance drop.}
+\label{tab:accuracy_inconsistency}
+\begin{tabular}{c|c|cccc}
+\toprule
+Task & Model & Zero-shot & Zero-shot CoT & Few-shot & Few-shot CoT \\
+\midrule\midrule
+\multirow{6}{*}{CommonsenseQA}
+      & Phi-3.5-mini-instruct & 0.75 | 0.10 & \blue{0.76} | \red{0.21} & \red{0.73} | 0.10 & - \\
+      & Phi-3.5-vision-instruct & 0.76 | 0.09 & \red{0.73} | \red{0.30} & \red{0.74} | \red{0.10} & - \\
+      & Llama-3.1-8B & - & - & 0.72 | 0.11 & - \\
+      & Llama-3.1-8B-Instruct & 0.75 | 0.10 & \blue{0.76} | \red{0.25} & \red{0.68} | \red{0.51} & - \\
+      & DeepSeek-R1-Distill-Llama-8B & - & 0.68 | 0.50 & - & - \\
+      & gpt-4o-2024-11-20 & 0.85 | 0.07 & \red{0.84} | \red{0.08} & \blue{0.87} | \blue{0.04} & - \\
+\midrule
+\multirow{6}{*}{QASC}
+      & Phi-3.5-mini-instruct & 0.76 | 0.09 & \blue{0.79} | \red{0.16} & \blue{0.77} | \red{0.10} & \blue{0.82} | \red{0.17} \\
+      & Phi-3.5-vision-instruct & 0.75 | 0.11 & \blue{0.77} | \red{0.29} & \blue{0.76} | \blue{0.10} & \blue{0.77} | \red{0.20} \\
+      & Llama-3.1-8B & - & - & 0.78 | 0.10 & \red{0.69} | \red{0.32} \\
+      & Llama-3.1-8B-Instruct & 0.82 | 0.09 & 0.82 | \red{0.19} & \red{0.61} | \red{0.84} & \red{0.68} | \red{0.74} \\
+      & DeepSeek-R1-Distill-Llama-8B & - & 0.69 | 0.52 & - & \blue{0.71} | 0.52 \\
+      & gpt-4o-2024-11-20 & 0.92 | 0.05 & \red{0.91} | \red{0.06} & \blue{0.94} | \blue{0.04} & \blue{0.93} | \blue{0.04} \\
+\midrule
+\multirow{6}{*}{100TFQA}
+      & Phi-3.5-mini-instruct & 0.66 | 0.11 & \blue{0.68} | \red{0.14} & \blue{0.69} | \blue{0.05} & \red{0.65} | \red{0.14} \\
+      & Phi-3.5-vision-instruct & 0.61 | 0.12 & \blue{0.67} | \red{0.34} & \blue{0.63} | \red{0.20} & \blue{0.66} | \red{0.18} \\
+      & Llama-3.1-8B & - & - & 0.73 | 0.10 & \red{0.67} | \red{0.32} \\
+      & Llama-3.1-8B-Instruct & 0.70 | 0.10 & \blue{0.72} | \red{0.26} & 0.70 | \red{0.24} & \red{0.68} | \red{0.48} \\
+      & DeepSeek-R1-Distill-Llama-8B & - & 0.66 | 0.48 & - & \blue{0.68} | \red{0.55} \\
+      & gpt-4o-2024-11-20 & 0.93 | 0.06 & \blue{0.97} | \blue{0.05} & \blue{0.94} | \blue{0.00} & \blue{0.98} | \blue{0.05} \\
+\midrule
+\multirow{6}{*}{GSM8K}
+      & Phi-3.5-mini-instruct & - & 0.52 | 0.68 & - & \blue{0.84} | \blue{0.19} \\
+      & Phi-3.5-vision-instruct & - & 0.54 | 0.71 & - & \blue{0.73} | \blue{0.32} \\
+      & Llama-3.1-8B & - & - & - & 0.50 | 0.48 \\
+      & Llama-3.1-8B-Instruct & - & 0.54 | 0.75 & - & \blue{0.79} | \blue{0.37} \\
+      & DeepSeek-R1-Distill-Llama-8B & - & 0.78 | 0.33 & - & \blue{0.86} | \blue{0.28} \\
+      & gpt-4o-2024-11-20 & - & 0.91 | 0.13 & - & \blue{0.95} | \blue{0.05} \\
+\bottomrule
+\end{tabular}
+\end{table*}

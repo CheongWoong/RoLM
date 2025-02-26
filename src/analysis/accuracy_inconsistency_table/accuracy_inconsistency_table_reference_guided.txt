@@ -1,0 +1,4 @@
+\multirow{6}{*}{QASC}
+      & Llama-3.1-8B-Instruct + Reference-guided & 0.91 | 0.07 & - & - & - \\
+      & gpt-4o-2024-11-20 + Reference-guided & 0.96 | 0.03 & - & - & - \\
+\midrule
