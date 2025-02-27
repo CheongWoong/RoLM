@@ -1,0 +1,12 @@
+\begin{table*}[t!]
+\centering
+\caption{Correlation analysis between model confidence and setwise consistency. Each cell represents pearson correlation coefficient and p-value (in parenthesis) for GPT-4o across different tasks and prompting strategies.}
+\label{tab:confidence_correlation}
+\begin{tabular}{c|cccc}
+\toprule
+Task & Zero-shot \\
+\midrule\midrule
+CommonsenseQA & 0.63 (0.000e+00) \\
+\bottomrule
+\end{tabular}
+\end{table*}
