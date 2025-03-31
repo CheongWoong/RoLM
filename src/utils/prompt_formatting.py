@@ -53,6 +53,9 @@ FORMAT_TYPE_MAP = {
 }
 
 #########################################################################
+REBUTTAL = True
+
+
 def make_format_data(format_num):
     # descriptors
     format_data = {}
@@ -67,35 +70,67 @@ def make_format_data(format_num):
     descriptor_period_6 = ("", ".")
     left_bracket_7 = ("", "<")
     right_bracket_7 = ("", ">")
+
+    indentation_8 = ("", "\t")  # 4 spaces or \t
+    list_mark_9 = ("", "* ")  
     # checking & operator
     # print(f"format_num: {format_num} -> 1={1 if format_num & 0b0000001 else 0}, 2={1 if format_num & 0b0000010 else 0}, 3={1 if format_num & 0b0000100 else 0}, 4={1 if format_num & 0b0001000 else 0}, 5={1 if format_num & 0b0010000 else 0}, 6={1 if format_num & 0b0100000 else 0}, 7={1 if format_num & 0b1000000 else 0}")
 
 
-    format_data |= {"1space" : space_1[1 if format_num & 0b0000001 else 0]}
-    format_data |= {"2answer_descriptor" : answer_descriptor_2[1 if format_num & 0b0000010 else 0]}
-    format_data |= {"2question_descriptor" : question_descriptor_2[1 if format_num & 0b0000010 else 0]}
-    format_data |= {"2options_descriptor" : options_descriptor_2[1 if format_num & 0b0000010 else 0]}
-    format_data |= {"2explanation_descriptor" : explanation_descriptor_2[1 if format_num & 0b0000010 else 0]}
-    format_data |= {"3separator_fspace" : separator_fspace_3[1 if format_num & 0b0000100 else 0]}
-    format_data |= {"4separator_bspcae" : separator_bspcae_4[1 if format_num & 0b0001000 else 0]}
-    format_data |= {"5new_line" : new_line_5[1 if format_num & 0b0010000 else 0]}
-    format_data |= {"6descriptor_period" : descriptor_period_6[1 if format_num & 0b0100000 else 0]}
-    format_data |= {"7left_bracket" : left_bracket_7[1 if format_num & 0b1000000 else 0]}
-    format_data |= {"7right_bracket" : right_bracket_7[1 if format_num & 0b1000000 else 0]}
+    format_data |= {"1space" : space_1[1 if format_num & 0b0000001 else 0]}                                     # Main variation 1 space before descriptor
+    format_data |= {"2answer_descriptor" : answer_descriptor_2[1 if format_num & 0b0000010 else 0]}             # Main variation 2 casing of descriptor
+    format_data |= {"2question_descriptor" : question_descriptor_2[1 if format_num & 0b0000010 else 0]}         # Main variation 2 casing of descriptor
+    format_data |= {"2options_descriptor" : options_descriptor_2[1 if format_num & 0b0000010 else 0]}           # Main variation 2 casing of descriptor
+    format_data |= {"2explanation_descriptor" : explanation_descriptor_2[1 if format_num & 0b0000010 else 0]}   # Main variation 2 casing of descriptor
+    
+    if not REBUTTAL:
+        format_data |= {"3separator_fspace" : separator_fspace_3[1 if format_num & 0b0000100 else 0]}
+    else:
+        format_data |= {"3separator_fspace" : ""}            
+    
+    if REBUTTAL:
+        format_data |= {"4separator_bspcae" : separator_bspcae_4[1 if format_num & 0b100 else 0]}               # Main variation 3 space after separator
+    else:
+        format_data |= {"4separator_bspcae" : separator_bspcae_4[1 if format_num & 0b0001000 else 0]}               # Main variation 3 space after separator
+    
+    if not REBUTTAL:
+        format_data |= {"5new_line" : new_line_5[1 if format_num & 0b0010000 else 0]}
+        format_data |= {"6descriptor_period" : descriptor_period_6[1 if format_num & 0b0100000 else 0]}
+        format_data |= {"7left_bracket" : left_bracket_7[1 if format_num & 0b1000000 else 0]}
+        format_data |= {"7right_bracket" : right_bracket_7[1 if format_num & 0b1000000 else 0]}
+    else:
+        format_data |= {"5new_line" : "\n"}
+        format_data |= {"6descriptor_period" : ""}
+        format_data |= {"7left_bracket" : ""}
+        format_data |= {"7right_bracket" : ""}
+
+    # Real-world format (for Rebuttal)
+    if REBUTTAL:
+        format_data |= {"8indentation": indentation_8[1 if format_num & 0b1000 else 0]}
+        format_data |= {"9list_mark": list_mark_9[1 if format_num & 0b10000 else 0]}
+    else:
+        format_data |= {"8indentation": indentation_8[1 if format_num & 0b10000000 else 0]}
+        format_data |= {"9list_mark": list_mark_9[1 if format_num & 0b100000000 else 0]}
 
     return format_data
 
 def format_input_prompt_ext(input_example, prompting_strategy, format_data, is_demonstration=False):
     e_question_template = "{1space}{7left_bracket}{2question_descriptor}{6descriptor_period}{7right_bracket}{3separator_fspace}:{4separator_bspcae}{5new_line}{question}\n"
     e_options_template = "{1space}{7left_bracket}{2options_descriptor}{6descriptor_period}{7right_bracket}{3separator_fspace}:{4separator_bspcae}{5new_line}{options}\n"
+    e_option_template = "{8indentation}{9list_mark}"
+
+    e_fewshot_answer_template = "\"{1space}{2answer_descriptor}\"{3separator_fspace}:{4separator_bspcae}\"{answer}\""
 
     question = e_question_template.format_map(format_data | {"question": input_example["questions"]["original"]}) if "questions" in input_example else ""
-    formatted_options = "\n".join([f"{option['label']}. {option['text']}" for option in input_example["options"]]) if "options" in input_example else None
+    
+    
+    formatted_options = "\n".join([e_option_template.format_map(format_data)+f"{option['label']}. {option['text']}" for option in input_example["options"]]) if "options" in input_example else None
 
     options = e_options_template.format_map(format_data | {"options": formatted_options}) if "options" in input_example else ""
 
     if is_demonstration:
-        raise NotImplementedError
+        answer = e_fewshot_answer_template.format_map(format_data | input_example)
+        input_prompt = demonstration_template.format(statement="", question=question, options=options, explanation="", components="", answer=answer)
     else:
         explanation = ""
         answer = ""
@@ -108,10 +143,10 @@ def format_example_ext(example, dataset_name, prompting_strategy, format_num):
 
     instruction_template = EINSTRUCTIONS[dataset_name][PROMPTING_STRATEGY_MAP[prompting_strategy]]
     instruction = instruction_template.format_map(format_data)
-    if "few-shot" in prompting_strategy:
-        raise NotImplementedError
     if "few-shot-components" in prompting_strategy:
         raise NotImplementedError
+    elif "few-shot" in prompting_strategy:
+        demonstrations = "\n".join([format_input_prompt_ext(demonstration_example, prompting_strategy, format_data, is_demonstration=True) for demonstration_example in example["demonstrations"]])+"\n" if "few-shot" in prompting_strategy else ""
     else:
         demonstrations = ""
         # demonstrations = "\n".join([format_input_prompt(demonstration_example, prompting_strategy, format_data, is_demonstration=True) for demonstration_example in example["demonstrations"]])+"\n" if "few-shot" in prompting_strategy else ""
