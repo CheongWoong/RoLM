@@ -68,6 +68,18 @@ def parse_output_MCQA(raw_output, num_options):
     output = match.group(1) if match else "None"
     if validate_output_MCQA(output, num_options):
         return output, True
+
+    pattern = "\s*[Aa]?\s*\"?\s*:\s*\"{?([A-H])"
+    match = re.search(pattern, raw_output)
+    output = match.group(1) if match else "None"
+    if validate_output_MCQA(output, num_options):
+        return output, True
+
+    pattern = "\s*[Aa]?\s*\"?\s*:\s*{\"?([A-H])"
+    match = re.search(pattern, raw_output)
+    output = match.group(1) if match else "None"
+    if validate_output_MCQA(output, num_options):
+        return output, True
     else:
         if DEBUG:
             print('='*20)
