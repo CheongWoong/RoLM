@@ -22,7 +22,7 @@ if __name__ == "__main__":
     parser.add_argument('--majority_voting', default=False, action='store_true')
     args = parser.parse_args()
     model_name, dataset_name, prompting_strategy, max_new_tokens = args.model_name, args.dataset_name, args.prompting_strategy, args.max_new_tokens
-    NUM_FORMAT_ELEMENTS = 7
+    NUM_FORMAT_ELEMENTS = 5
     NUM_FORMATS = pow(2, NUM_FORMAT_ELEMENTS)
 
     # Create output directory
