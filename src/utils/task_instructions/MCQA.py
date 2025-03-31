@@ -2,15 +2,15 @@ EINSTRUCTION_MCQA = {
     ### Standard prompting
     "standard": (
         "Answer the following multiple-choice questions. "
-        "Select the best answer from the given options and provide your output in the following valid JSON format: "
-        "```json {{\"{1space}{7left_bracket}{2answer_descriptor}{6descriptor_period}{7right_bracket}\"{3separator_fspace}:{4separator_bspcae}{5new_line}\"letter\"}}``` "
+        "Select the best answer from the given options and provide your output in the following valid JSON format:\n"
+        "```json {{\"{1space}{7left_bracket}{2answer_descriptor}{6descriptor_period}{7right_bracket}\"{3separator_fspace}:{4separator_bspcae}{5new_line}\"letter\"}}```\n"
         "Do not include any additional text. "
     ),
     "cot": (
         "Answer the following multiple-choice questions. "
         "Think step-by-step and provide a concise reasoning process that justifies your answer. "
-        "Based on the reasoning, select the best answer from the given options and provide your output in the following valid JSON format: "
-        "```json {{\"{1space}{7left_bracket}{2explanation_descriptor}{6descriptor_period}{7right_bracket}\"{3separator_fspace}:{4separator_bspcae}{5new_line}\"concise reasoning\", \"{1space}{7left_bracket}{2answer_descriptor}{6descriptor_period}{7right_bracket}\"{3separator_fspace}:{4separator_bspcae}{5new_line}\"letter\"}}``` "
+        "Based on the reasoning, select the best answer from the given options and provide your output in the following valid JSON format:\n"
+        "```json {{\"{1space}{7left_bracket}{2explanation_descriptor}{6descriptor_period}{7right_bracket}\"{3separator_fspace}:{4separator_bspcae}{5new_line}\"concise reasoning\", \"{1space}{7left_bracket}{2answer_descriptor}{6descriptor_period}{7right_bracket}\"{3separator_fspace}:{4separator_bspcae}{5new_line}\"letter\"}}```\n"
         "Ensure the explanation is minimal sufficient. "
         "Do not include any additional text. "
     )
