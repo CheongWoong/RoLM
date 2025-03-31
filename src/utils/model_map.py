@@ -16,9 +16,9 @@ MODEL_MAP = {
     "DeepSeek-R1-Distill-Llama-8B": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
     ### Falcon-3
     # "Falcon3-10B-Instruct": "tiiuae/Falcon3-10B-Instruct",
-    # "Falcon3-7B-Instruct": "tiiuae/Falcon3-7B-Instruct",
-    # "Falcon3-3B-Instruct": "tiiuae/Falcon3-3B-Instruct",
-    # "Falcon3-1B-Instruct": "tiiuae/Falcon3-1B-Instruct",
+    "Falcon3-7B-Instruct": "tiiuae/Falcon3-7B-Instruct",
+    "Falcon3-3B-Instruct": "tiiuae/Falcon3-3B-Instruct",
+    "Falcon3-1B-Instruct": "tiiuae/Falcon3-1B-Instruct",
     # "Falcon3-10B-Base": "tiiuae/Falcon3-10B-Base",
     # "Falcon3-7B-Base": "tiiuae/Falcon3-7B-Base",
     # "Falcon3-3B-Base": "tiiuae/Falcon3-3B-Base",
