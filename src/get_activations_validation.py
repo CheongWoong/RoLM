@@ -52,12 +52,12 @@ if __name__ == "__main__":
 
     # Create output directory
     output_dir = f"results/{dataset_name}/{model_name}"
-    layer_wise_path = os.path.join(output_dir, f"{prompting_strategy}_layer_wise_hidden_states.dat")
-    head_wise_path = os.path.join(output_dir, f"{prompting_strategy}_head_wise_hidden_states.dat")
+    layer_wise_path = os.path.join(output_dir, f"{prompting_strategy}_layer_wise_hidden_states_validation.dat")
+    head_wise_path = os.path.join(output_dir, f"{prompting_strategy}_head_wise_hidden_states_validation.dat")
     os.makedirs(output_dir, exist_ok=True)
 
     input_dir = "preprocessed_datasets"
-    input_path = os.path.join(input_dir, f"{dataset_name}_test_4_shot.jsonl")
+    input_path = os.path.join(input_dir, f"{dataset_name}_valid.jsonl")
 
     num_inputs = len(open(input_path, "r").readlines())
     with jsonlines.open(input_path) as fin:
