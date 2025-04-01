@@ -120,10 +120,7 @@ def format_input_prompt_ext(input_example, prompting_strategy, format_data, is_d
     e_option_template = "{8indentation}{9list_mark}"
 
     e_fewshot_answer_template = "\"{1space}{2answer_descriptor}\"{3separator_fspace}:{4separator_bspcae}\"{answer}\""
-<<<<<<< HEAD
-=======
     e_fewshot_explanation_template = "\"{1space}{2explanation_descriptor}\"{3separator_fspace}:{4separator_bspcae}\"{explanation}\", "
->>>>>>> c839f9e5a4cd1110a5f633882c68c82ed9aea19f
 
     question = e_question_template.format_map(format_data | {"question": input_example["questions"]["original"]}) if "questions" in input_example else ""
     
@@ -134,12 +131,8 @@ def format_input_prompt_ext(input_example, prompting_strategy, format_data, is_d
 
     if is_demonstration:
         answer = e_fewshot_answer_template.format_map(format_data | input_example)
-<<<<<<< HEAD
-        input_prompt = demonstration_template.format(statement="", question=question, options=options, explanation="", components="", answer=answer)
-=======
         explanation = e_fewshot_explanation_template.format_map(format_data | input_example) if "cot" in prompting_strategy else ""
         input_prompt = demonstration_template.format(statement="", question=question, options=options, explanation=explanation, components="", answer=answer)
->>>>>>> c839f9e5a4cd1110a5f633882c68c82ed9aea19f
     else:
         explanation = ""
         answer = ""
