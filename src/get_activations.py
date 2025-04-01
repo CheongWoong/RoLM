@@ -57,7 +57,7 @@ if __name__ == "__main__":
     os.makedirs(output_dir, exist_ok=True)
 
     input_dir = "preprocessed_datasets"
-    input_path = os.path.join(input_dir, f"{dataset_name}_test_4_shot.jsonl")
+    input_path = os.path.join(input_dir, f"{dataset_name}_valid.jsonl")
 
     num_inputs = len(open(input_path, "r").readlines())
     with jsonlines.open(input_path) as fin:
