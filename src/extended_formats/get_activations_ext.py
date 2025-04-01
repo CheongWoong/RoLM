@@ -29,7 +29,7 @@ if __name__ == "__main__":
     parser.add_argument("--prompting_strategy", type=str, default="zero-shot")
     args = parser.parse_args()
     model_name, dataset_name, prompting_strategy = args.model_name, args.dataset_name, args.prompting_strategy
-    NUM_FORMATS_ELEMENTS = 7
+    NUM_FORMATS_ELEMENTS = 5
     NUM_FORMATS = pow(2, NUM_FORMATS_ELEMENTS)
 
     # Load tokenizer and model
