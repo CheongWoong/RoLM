@@ -21,7 +21,7 @@ if __name__ == "__main__":
     NUM_FORMATS = 8
 
     # Prepare id2answer map
-    input_path = f"preprocessed_datasets/{dataset_name}_validation.jsonl"
+    input_path = f"preprocessed_datasets/{dataset_name}_valid.jsonl"
     with jsonlines.open(input_path) as fin:
         id_answer_map = {}
         for example in fin.iter():
