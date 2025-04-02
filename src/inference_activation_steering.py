@@ -8,6 +8,7 @@ from tqdm.auto import tqdm
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 import pyvene as pv
+from einops import rearrange
 
 import numpy as np
 from collections import defaultdict
@@ -117,22 +118,23 @@ if __name__ == "__main__":
     print(top_k_head_indices)
     print()
 
+    target_steering_direction = np.zeros((model.config.num_hidden_layers, model.config.hidden_size))
+    target_steering_direction = rearrange(target_steering_direction, 'l (h d) -> l h d', h=model.config.num_attention_heads)
     steering_direction_path = os.path.join(output_dir, f"{prompting_strategy}_activation_steering_direction.npy")
     steering_direction = np.load(steering_direction_path)
-    # TODO: fix error in this part
+
     pv_config = []
     for layer_idx, head_idx in top_k_head_indices:
-        intervener = ITI_Intervener(steering_direction[layer_idx][head_idx], alpha)
+        target_steering_direction[layer_idx][head_idx] += steering_direction[layer_idx][head_idx]
+    target_steering_direction = rearrange(target_steering_direction, 'l h d -> l (h d)')
+    for layer_idx in range(model.config.num_hidden_layers):
+        intervener = ITI_Intervener(target_steering_direction[layer_idx], alpha)
         pv_config.append({
-            "component": f"model.layers[{layer_idx}].self_attn.o_proj.input[{head_idx}]",
+            "component": f"model.layers[{layer_idx}].self_attn.o_proj.input",
             "intervention": wrapper(intervener),
         })
-    intervened_model = pv.IntervenableModel(pv_config, model)
-    1/0 # STOP
 
-    #########################################################################################
-    #########################################################################################
-    #########################################################################################
+    intervened_model = pv.IntervenableModel(pv_config, model)
 
     # Create output directory
     output_dir = f"results/{dataset_name}/{model_name}"
