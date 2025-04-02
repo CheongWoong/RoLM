@@ -12,6 +12,11 @@ import pyvene as pv
 import numpy as np
 from collections import defaultdict
 
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
 from src.utils.prompt_formatting import format_example
 from src.utils.model_map import MODEL_MAP
 
@@ -82,85 +87,6 @@ if __name__ == "__main__":
     # Create output directory
     output_dir = f"results/{dataset_name}/{model_name}"
 
-    predictions_path = os.path.join(output_dir, f"{prompting_strategy}_predictions.jsonl")
-    raw_predictions_path = os.path.join(output_dir, f"{prompting_strategy}_raw_predictions.jsonl")
-    try:
-        with jsonlines.open(predictions_path) as fin:
-            id_predictions_map, id_consistency_map = {}, {}
-            for example in fin.iter():
-                id_predictions_map[example["id"]] = example["predictions"]
-                id_consistency_map[example["id"]] = example["consistency"]["mean"]
-    except:
-        pass
-
-    if dataset_name == "CommonsenseQA":
-        NUM_HALF = int(977/2)
-    elif dataset_name == "QASC":
-        NUM_HALF = int(741/2)
-    elif dataset_name == "100TFQA":
-        NUM_HALF = int(80/2)
-    elif dataset_name == "GSM8K":
-        NUM_HALF = int(1056/2)
-
-    X, Y, Z = [], [], []
-    id_majority_level_map = defaultdict(list)
-    with jsonlines.open(raw_predictions_path) as fin:
-        for idx, example in enumerate(fin.iter()):
-            confidences = []
-            for format_id, top_tokens in example["top_tokens"].items():
-                confidence, flag = -0.01, False
-                for i, top_tokenss in enumerate(top_tokens[::-1]):
-                    if top_tokenss[0] == id_predictions_map[example["id"]][format_id]:
-                        if "top_probs" in example:
-                            confidence = example["top_probs"][format_id][-(i+1)][0]
-                        else:
-                            confidence = np.exp(example["top_logprobs"][format_id][-(i+1)][0])
-                        confidences.append(confidence)
-                        flag = True
-                        break
-                if not flag:
-                    confidences.append(confidence)
-                    print("could not find match")
-            if len(confidences) != 8:
-                # print(example["top_tokens"])
-                print(len(confidences))
-                # raise Exception
-            else:
-                id_predictions_map[example["id"]].pop('majority_voting')
-                for ii in range(8):
-                    zz = list(id_predictions_map[example["id"]].values()).count(id_predictions_map[example["id"]][str(ii)])
-                    # zz = ((zz>7)*1.0) # binarize
-                    # zz = max(8-zz, zz) # pairing
-                    # zz = np.digitize(confidences[ii], np.array([0.0, 0.5, 0.9, 1.01])) # confidence
-                    id_majority_level_map[example["id"]].append(zz)
-
-    id_majority_level_map = list(id_majority_level_map.values())
-    id_majority_level_map = np.array(id_majority_level_map)
-    id_majority_level_map = id_majority_level_map.reshape(-1)
-
-    layer_wise_path = os.path.join(output_dir, f"{prompting_strategy}_layer_wise_hidden_states.dat")
-    head_wise_path = os.path.join(output_dir, f"{prompting_strategy}_head_wise_hidden_states.dat")
-
-    input_dir = "preprocessed_datasets"
-    input_path = os.path.join(input_dir, f"{dataset_name}_test_4_shot.jsonl")
-
-    layer_wise_hidden_states = read_memmap(layer_wise_path)
-    num_samples, num_formats, num_layers, hidden_size = layer_wise_hidden_states.shape
-
-    X1 = layer_wise_hidden_states[NUM_HALF:,:,:,:].reshape(-1, num_layers, hidden_size)
-    id_majority_level_map1 = id_majority_level_map[NUM_HALF*NUM_FORMATS:]
-    X1_major = X1[id_majority_level_map1 > 7].mean(0)
-    X1_minor = X1[id_majority_level_map1 < 5].mean(0)
-
-    X2 = layer_wise_hidden_states[:NUM_HALF,:,:,:].reshape(-1, num_layers, hidden_size)
-    id_majority_level_map2 = id_majority_level_map[:NUM_HALF*NUM_FORMATS]
-    X2_major = X2[id_majority_level_map2 > 7].mean(0)
-    X2_minor = X2[id_majority_level_map2 < 5].mean(0)
-
-    #########################################################################################
-    #########################################################################################
-    #########################################################################################
-
     # Load tokenizer and model
     tokenizer = AutoTokenizer.from_pretrained(MODEL_MAP[model_name])
     if "Phi-3.5-vision" in model_name:
@@ -181,27 +107,28 @@ if __name__ == "__main__":
     model.generation_config.temperature=None
     model.generation_config.top_p=None
 
-    majority_direction1 = X1_major - X1_minor
-    majority_direction2 = X2_major - X2_minor
+    top_k_heads_path = os.path.join(output_dir, f"{prompting_strategy}_activation_steering_top_k_heads.json")
+    with open(top_k_heads_path) as fin:
+        top_k_heads = json.load(fin)
+    top_k_head_indices = []
+    for idx, probing_accuracy in top_k_heads:
+        top_k_head_indices.append(idx)
+    print("Top-K heads to be steered:")
+    print(top_k_head_indices)
+    print()
 
-    TARGET_LAYERS = [31]
-
-    pv_config1, pv_config2 = [], []
-    for layer_idx in range(num_layers):
-        if layer_idx not in TARGET_LAYERS:
-            continue
-        intervener1 = ITI_Intervener(majority_direction1[layer_idx], alpha)
-        pv_config1.append({
-            "component": f"model.layers[{layer_idx}].output",
-            "intervention": wrapper(intervener1),
+    steering_direction_path = os.path.join(output_dir, f"{prompting_strategy}_activation_steering_direction.npy")
+    steering_direction = np.load(steering_direction_path)
+    # TODO: fix error in this part
+    pv_config = []
+    for layer_idx, head_idx in top_k_head_indices:
+        intervener = ITI_Intervener(steering_direction[layer_idx][head_idx], alpha)
+        pv_config.append({
+            "component": f"model.layers[{layer_idx}].self_attn.o_proj.input[{head_idx}]",
+            "intervention": wrapper(intervener),
         })
-        intervener2 = ITI_Intervener(majority_direction2[layer_idx], alpha)
-        pv_config2.append({
-            "component": f"model.layers[{layer_idx}].output",
-            "intervention": wrapper(intervener2),
-        })
-    intervened_model1 = pv.IntervenableModel(pv_config1, model)
-    intervened_model2 = pv.IntervenableModel(pv_config2, model)
+    intervened_model = pv.IntervenableModel(pv_config, model)
+    1/0 # STOP
 
     #########################################################################################
     #########################################################################################
@@ -217,11 +144,6 @@ if __name__ == "__main__":
     with jsonlines.open(input_path) as fin, open(output_path, "w") as fout:
         input_examples = ""
         for idx, example in tqdm(enumerate(fin.iter())):
-            if idx == 0:
-                intervened_model = intervened_model1
-            elif idx == NUM_HALF:
-                intervened_model = intervened_model2
-
             # if idx >= 100:
             #     break
 
