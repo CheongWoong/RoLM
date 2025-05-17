@@ -1,4 +1,4 @@
-for model_name in Falcon3-1B-Instruct Falcon3-3B-Instruct Falcon3-7B-Instruct
+for model_name in Falcon3-1B-Instruct Falcon3-3B-Instruct Falcon3-7B-Instruct Falcon3-10B-Instruct
 do
     for dataset_name in CommonsenseQA QASC
     do
