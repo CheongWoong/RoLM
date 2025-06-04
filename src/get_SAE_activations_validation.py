@@ -52,14 +52,6 @@ if __name__ == "__main__":
         model = HookedSAETransformer.from_pretrained_no_processing(MODEL_MAP[model_name], dtype=torch.float16, device="cuda")
     model.eval()
 
-    sae_idx = 31
-
-    sae, cfg_dict, sparsity = SAE.from_pretrained(
-        release="llama_scope_lxr_8x",  # <- Release name
-        sae_id=f"l{sae_idx}r_8x",  # <- SAE id (not always a hook point!)
-        device="cuda",
-    )
-
     # Create output directory
     output_dir = f"results/{dataset_name}/{model_name}"
     layer_wise_path = os.path.join(output_dir, f"{prompting_strategy}_layer_wise_sae_hidden_states_validation.dat")
@@ -70,15 +62,23 @@ if __name__ == "__main__":
     input_path = os.path.join(input_dir, f"{dataset_name}_valid.jsonl")
 
     num_inputs = len(open(input_path, "r").readlines())
+
+    layer_wise_shape = (num_inputs, NUM_FORMATS, 32, 4096*8)
+    # head_wise_shape = (num_inputs, NUM_FORMATS, model.config.num_hidden_layers, model.config.num_attention_heads, model.config.hidden_size // model.config.num_attention_heads)
+    layer_wise_memmap = np.memmap(layer_wise_path, dtype="float16", mode="w+", shape=layer_wise_shape)
+    # head_wise_memmap = np.memmap(head_wise_path, dtype="float16", mode="w+", shape=head_wise_shape)
+
     with jsonlines.open(input_path) as fin:
-        all_results = {
-            "layer_wise_hidden_states_list": [],
-            "head_wise_hidden_states_list": [],
-        }
-        layer_wise_shape = (num_inputs, NUM_FORMATS, 32, 4096*8)
-        # head_wise_shape = (num_inputs, NUM_FORMATS, model.config.num_hidden_layers, model.config.num_attention_heads, model.config.hidden_size // model.config.num_attention_heads)
-        layer_wise_memmap = np.memmap(layer_wise_path, dtype="float16", mode="w+", shape=layer_wise_shape)
-        # head_wise_memmap = np.memmap(head_wise_path, dtype="float16", mode="w+", shape=head_wise_shape)
+        sae_idxs = range(0, 16)
+        saes = []
+        for sae_idx in sae_idxs:
+            sae, cfg_dict, sparsity = SAE.from_pretrained(
+                release="llama_scope_lxr_8x",  # <- Release name
+                sae_id=f"l{sae_idx}r_8x",  # <- SAE id (not always a hook point!)
+                device="cuda",
+            )
+            sae.use_error_term = True
+            saes.append(sae)
         for idx, example in tqdm(enumerate(fin.iter())):
             for format_type in [str(num) for num in range(NUM_FORMATS)]:
                 # Format example
@@ -93,18 +93,56 @@ if __name__ == "__main__":
 
                 # Generate the output
                 with torch.no_grad():
-                    _, cache = model.run_with_cache_with_saes(input_ids, saes=[sae])
+                    _, cache = model.run_with_cache_with_saes(input_ids, saes=saes)
+
+                for sae_idx in sae_idxs:
                     layer_wise_hidden_states = [cache[f"blocks.{sae_idx}.hook_resid_post.hook_sae_acts_post"][0, -1, :].float().cpu()]
-
                     layer_wise_hidden_states = torch.stack(layer_wise_hidden_states, dim=0).squeeze().numpy()
-                layer_wise_memmap[idx, int(format_type)] = layer_wise_hidden_states
-                # head_wise_memmap[idx, int(format_type)] = head_wise_hidden_states
+                    layer_wise_memmap[idx, int(format_type), sae_idx] = layer_wise_hidden_states
+                    # head_wise_memmap[idx, int(format_type)] = head_wise_hidden_states
 
-        # Ensure data is written to disk
-        layer_wise_memmap.flush()
-        # head_wise_memmap.flush()
-        layer_wise_memmap_configs = {"shape": layer_wise_shape, "dtype": "float16"}
-        # head_wise_memmap_configs = {"shape": head_wise_shape, "dtype": "float16"}
-        json.dump(layer_wise_memmap_configs, open(layer_wise_path.replace(".dat", ".conf"), "w"))
-        # json.dump(head_wise_memmap_configs, open(head_wise_path.replace(".dat", ".conf"), "w"))
-        print("Processing complete. Hidden states saved using memmap.")
+        for sae in saes:
+            del sae
+        torch.cuda.empty_cache()
+
+    with jsonlines.open(input_path) as fin:
+        sae_idxs = range(16, 32)
+        saes = []
+        for sae_idx in sae_idxs:
+            sae, cfg_dict, sparsity = SAE.from_pretrained(
+                release="llama_scope_lxr_8x",  # <- Release name
+                sae_id=f"l{sae_idx}r_8x",  # <- SAE id (not always a hook point!)
+                device="cuda",
+            )
+            sae.use_error_term = True
+            saes.append(sae)
+        for idx, example in tqdm(enumerate(fin.iter())):
+            for format_type in [str(num) for num in range(NUM_FORMATS)]:
+                # Format example
+                formatted_example = format_example(example, dataset_name, prompting_strategy, format_type=format_type)
+
+                # Chat templates for models
+                if "Instruct" in model_name or "instruct" in model_name or "DeepSeek" in model_name:
+                    messages = [{"role": "system", "content": "You are a helpful assistant"}, {"role": "user", "content": formatted_example}]
+                    input_ids = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt").to("cuda")
+                else:
+                    input_ids = tokenizer.encode(formatted_example, return_tensors="pt").to("cuda")
+
+                # Generate the output
+                with torch.no_grad():
+                    _, cache = model.run_with_cache_with_saes(input_ids, saes=saes)
+
+                for sae_idx in sae_idxs:
+                    layer_wise_hidden_states = [cache[f"blocks.{sae_idx}.hook_resid_post.hook_sae_acts_post"][0, -1, :].float().cpu()]
+                    layer_wise_hidden_states = torch.stack(layer_wise_hidden_states, dim=0).squeeze().numpy()
+                    layer_wise_memmap[idx, int(format_type), sae_idx] = layer_wise_hidden_states
+                    # head_wise_memmap[idx, int(format_type)] = head_wise_hidden_states
+
+    # Ensure data is written to disk
+    layer_wise_memmap.flush()
+    # head_wise_memmap.flush()
+    layer_wise_memmap_configs = {"shape": layer_wise_shape, "dtype": "float16"}
+    # head_wise_memmap_configs = {"shape": head_wise_shape, "dtype": "float16"}
+    json.dump(layer_wise_memmap_configs, open(layer_wise_path.replace(".dat", ".conf"), "w"))
+    # json.dump(head_wise_memmap_configs, open(head_wise_path.replace(".dat", ".conf"), "w"))
+    print("Processing complete. Hidden states saved using memmap.")

@@ -75,13 +75,14 @@ if __name__ == "__main__":
     model.eval()
 
 
-    sae_idx = 31
+    sae_idx = 15
 
     sae, cfg_dict, sparsity = SAE.from_pretrained(
         release="llama_scope_lxr_8x",  # <- Release name
         sae_id=f"l{sae_idx}r_8x",  # <- SAE id (not always a hook point!)
         device="cuda",
     )
+    sae.use_error_term = True
 
     # model.generation_config.temperature=None
     # model.generation_config.top_p=None
