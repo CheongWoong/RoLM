@@ -29,8 +29,10 @@ from functools import partial
 def steering(
     activations, hook, steering_strength=1.0, sae_vector=None, steering_vector=None
 ):
-    # Note if the feature fires anyway, we'd be adding to that here.
-    return activations + steering_strength * torch.matmul(steering_vector, sae_vector)
+    direction = torch.matmul(steering_vector, sae_vector)
+    modified = activations.clone()
+    modified[:, -1, :] += steering_strength*direction
+    return modified
 ########################################################################
 
 def read_memmap(filepath):
@@ -87,13 +89,13 @@ if __name__ == "__main__":
     # model.generation_config.temperature=None
     # model.generation_config.top_p=None
 
-    steering_direction_path = os.path.join(output_dir, f"{prompting_strategy}_SAE_steering_direction.npy")
+    steering_direction_path = os.path.join(output_dir, f"{prompting_strategy}_SAE_steering_direction_{sae_idx}.npy")
     steering_direction = np.load(steering_direction_path)
     steering_vector = torch.from_numpy(steering_direction).bfloat16().to("cuda")
 
     # Create output directory
     output_dir = f"results/{dataset_name}/{model_name}"
-    output_path = os.path.join(output_dir, f"{prompting_strategy}_SAE_steering_{alpha}_raw_predictions.jsonl")
+    output_path = os.path.join(output_dir, f"{prompting_strategy}_SAE_steering_{sae_idx}_{alpha}_raw_predictions.jsonl")
     os.makedirs(output_dir, exist_ok=True)
 
     input_dir = "preprocessed_datasets"
