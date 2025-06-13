@@ -156,7 +156,7 @@ def format_example_ext(example, dataset_name, prompting_strategy, format_num):
     formatted_example = final_template.format(instruction=instruction, demonstrations=demonstrations, input=input)
     return formatted_example
 
-def format_example(example, dataset_name, prompting_strategy, format_type):
+def format_example(example, dataset_name, prompting_strategy, format_type, disable_prefilling=True):
     if FORMAT_TYPE_MAP[format_type]["casing"] == "capitalize":
         descriptors = DESCRIPTORS_capitalize
     elif FORMAT_TYPE_MAP[format_type]["casing"] == "upper":
@@ -168,7 +168,7 @@ def format_example(example, dataset_name, prompting_strategy, format_type):
         demonstrations = "\n".join([format_input_prompt(demonstration_example, prompting_strategy, format_data, is_demonstration=True) for demonstration_example in components_demonstrations[dataset_name]])+"\n"
     else:
         demonstrations = "\n".join([format_input_prompt(demonstration_example, prompting_strategy, format_data, is_demonstration=True) for demonstration_example in example["demonstrations"]])+"\n" if "few-shot" in prompting_strategy else ""
-    input = format_input_prompt(example, prompting_strategy, format_data)
+    input = format_input_prompt(example, prompting_strategy, format_data, disable_prefilling=disable_prefilling)
     formatted_example = final_template.format(instruction=instruction, demonstrations=demonstrations, input=input)
     return formatted_example
 
@@ -177,7 +177,7 @@ def format_instruction_prompt(dataset_name, prompting_strategy, format_data):
     instruction = instruction_template.format_map(format_data)
     return instruction
 
-def format_input_prompt(input_example, prompting_strategy, format_data, is_demonstration=False):
+def format_input_prompt(input_example, prompting_strategy, format_data, disable_prefilling=True, is_demonstration=False):
     statement = statement_template.format_map(format_data | {"statement": input_example["statements"]["original"]}) if "statements" in input_example else ""
     question = question_template.format_map(format_data | {"question": input_example["questions"]["original"]}) if "questions" in input_example else ""
     options = options_template.format_map(format_data | {"options": format_options(input_example["options"])}) if "options" in input_example else ""
@@ -202,9 +202,10 @@ def format_input_prompt(input_example, prompting_strategy, format_data, is_demon
         else:
             answer = answer_template.format_map(format_data | input_example) if "cot" not in prompting_strategy else ""
 
-        # disable prefilling output format
-        explanation = explanation if "reference-guided" in prompting_strategy else ""
-        answer = ""
+        if disable_prefilling:
+            # disable prefilling output format
+            explanation = explanation if "reference-guided" in prompting_strategy else ""
+            answer = ""
 
         input_prompt = input_template.format(statement=statement, question=question, options=options, explanation=explanation, answer=answer)
     return input_prompt
