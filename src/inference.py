@@ -57,7 +57,7 @@ if __name__ == "__main__":
     input_path = os.path.join(input_dir, f"{dataset_name}_test_4_shot.jsonl")
     with jsonlines.open(input_path) as fin, open(output_path, "w") as fout:
         input_examples = ""
-        for idx, example in tqdm(enumerate(fin.iter())):
+        for idx, example in enumerate(tqdm(fin.iter())):
             # Prepare result
             result = {
                 "id": example["id"],
