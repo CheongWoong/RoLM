@@ -49,6 +49,12 @@ def parse_output_TFQA(raw_output):
     output = match.group(1).capitalize() if match else "None"
     if validate_output_TFQA(output):
         return output, True
+    
+    pattern = ":\s*\"{?([Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee])"
+    match = re.search(pattern, raw_output)
+    output = match.group(1).capitalize() if match else "None"
+    if validate_output_TFQA(output):
+        return output, True
     else:
         if DEBUG:
             print('='*20)

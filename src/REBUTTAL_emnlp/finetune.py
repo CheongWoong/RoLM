@@ -1,4 +1,5 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments, Trainer, DataCollatorForLanguageModeling
+from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments, Trainer
+from trl import SFTConfig, SFTTrainer, DataCollatorForCompletionOnlyLM
 from peft import LoraConfig, get_peft_model
 from datasets import Dataset
 import torch
@@ -47,42 +48,41 @@ peft_config = LoraConfig(
 model = get_peft_model(model, peft_config)
 
 # Preprocess function using chat template
-def preprocess(example):
-    messages = [
-        {"role": "user", "content": example["input"]},
-        {"role": "assistant", "content": example["output"]}
-    ]
-    full_prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=False)
-    tokenized = tokenizer(
-        full_prompt,
-        truncation=True,
-        max_length=512 if "GSM" in DATASET_NAME else 256,
-        padding="max_length"
-    )
-    tokenized["labels"] = tokenized["input_ids"].copy()
-    return tokenized
+def formatting_func(example):
+    assert len(example['input']) == len(example['output'])
 
-tokenized_dataset = dataset.map(preprocess)
+    output_texts = []
+    for i in range(len(example['input'])):
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant"},
+            {"role": "user", "content": example["input"][i]},
+            {"role": "assistant", "content": example["output"][i]}
+        ]
+        full_prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=False)
+        output_texts.append(full_prompt)
+    return output_texts
 
-# Training arguments
-training_args = TrainingArguments(
+training_args = SFTConfig(
     output_dir=f"src/REBUTTAL_emnlp/finetuned_{DATASET_NAME}",
-    per_device_train_batch_size=4,
-    gradient_accumulation_steps=4,
-    num_train_epochs=3,
-    learning_rate=2e-4,
-    logging_steps=10,
-    save_strategy="epoch",
     fp16=True,
+    max_length=512 if "GSM" in DATASET_NAME else 256,
+    per_device_train_batch_size=4 if "GSM" in DATASET_NAME else 8,
+    gradient_accumulation_steps=2 if "GSM" in DATASET_NAME else 1,
+    num_train_epochs=10 if "100TFQA" in DATASET_NAME else 3,
+    save_strategy="epoch",
     report_to="none"
 )
 
 # Trainer
-trainer = Trainer(
-    model=model,
+response_template = "<|start_header_id|>assistant<|end_header_id|>"
+collator = DataCollatorForCompletionOnlyLM(response_template, tokenizer=tokenizer)
+trainer = SFTTrainer(
+    model,
+    train_dataset=dataset,
     args=training_args,
-    train_dataset=tokenized_dataset,
-    data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False)
+    formatting_func=formatting_func,
+    data_collator=collator,
+    peft_config=peft_config,
 )
 
 # Start training
