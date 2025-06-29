@@ -34,8 +34,9 @@ with jsonlines.open(f"preprocessed_datasets/{DATASET_NAME}_train.jsonl") as fin:
         ]
         full_prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=False)
         sep_idx = full_prompt.find("<|start_header_id|>assistant<|end_header_id|>")
-        inputs.append(full_prompt[:sep_idx])
-        outputs.append(full_prompt[sep_idx:])
+        sep_len = len("<|start_header_id|>assistant<|end_header_id|>")
+        inputs.append(full_prompt[:sep_idx+sep_len])
+        outputs.append(full_prompt[sep_idx+sep_len:])
 
 # Load model in fp16 (no quantization)
 model = AutoModelForCausalLM.from_pretrained(
