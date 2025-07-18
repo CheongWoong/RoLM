@@ -1,5 +1,5 @@
 model_name=Phi-3.5-mini-instruct
-for dataset_name in 100TFQA CommonsenseQA GSM8K QASC mmlu_pro_test_law_100
+for dataset_name in 100TFQA CommonsenseQA GSM8K QASC mmlu_pro_law_q100
 do
     for ps in zero-shot few-shot zero-shot-cot few-shot-cot
     do
