@@ -1,5 +1,5 @@
 model_name=DeepSeek-R1-Distill-Llama-8B
-for dataset_name in 100TFQA CommonsenseQA GSM8K QASC
+for dataset_name in 100TFQA CommonsenseQA GSM8K QASC mmlu_pro_test_law_100
 do
     for ps in zero-shot-cot few-shot-cot
     do

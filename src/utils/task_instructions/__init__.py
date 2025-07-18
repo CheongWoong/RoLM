@@ -6,9 +6,9 @@ from src.utils.task_instructions.Math import INSTRUCTION_Math
 INSTRUCTIONS = {
     "CommonsenseQA": INSTRUCTION_MCQA,
     "QASC": INSTRUCTION_MCQA,
-    "AQuA_RAT": INSTRUCTION_MCQA,
     "100TFQA": INSTRUCTION_TFQA,
     "GSM8K": INSTRUCTION_Math,
+    "mmlu_pro_test_law_100": INSTRUCTION_MCQA,
 }
 EINSTRUCTIONS = {
     "CommonsenseQA": EINSTRUCTION_MCQA,

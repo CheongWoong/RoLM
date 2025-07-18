@@ -5,7 +5,7 @@ DEBUG = False
 
 #########################################################################
 
-MCQA_OPTIONS = [chr(65 + i) for i in range(8)]
+MCQA_OPTIONS = [chr(65 + i) for i in range(10)]
 
 def validate_output_TFQA(output):
     is_valid = output in ["True", "False"]
@@ -28,12 +28,14 @@ def validate_output_Math(output):
 def parse_output(raw_output, dataset_name):
     if dataset_name in ["100TFQA"]:
         return parse_output_TFQA(raw_output)
-    elif dataset_name in ["CommonsenseQA", "AQuA_RAT"]:
+    elif dataset_name in ["CommonsenseQA"]:
         return parse_output_MCQA(raw_output, num_options=5)
     elif dataset_name in ["QASC"]:
         return parse_output_MCQA(raw_output, num_options=8)
     elif dataset_name in ["GSM8K"]:
         return parse_output_Math(raw_output)
+    elif dataset_name in ["mmlu_pro_test_law_100"]:
+        return parse_output_MCQA(raw_output, num_options=10)
     else:
         raise NotImplementedError
 
@@ -63,25 +65,25 @@ def parse_output_TFQA(raw_output):
         return output, False
 
 def parse_output_MCQA(raw_output, num_options):
-    pattern = "\s*[Aa][Nn][Ss][Ww][Ee][Rr][Ss]?\s*\"?\s*:\s*\"?([A-H])"
+    pattern = "\s*[Aa][Nn][Ss][Ww][Ee][Rr][Ss]?\s*\"?\s*:\s*\"?([A-J])"
     match = re.search(pattern, raw_output)
     output = match.group(1) if match else "None"
     if validate_output_MCQA(output, num_options):
         return output, True
 
-    pattern = "\s*[Aa]?\s*\"?\s*:\s*\"?([A-H])"
+    pattern = "\s*[Aa]?\s*\"?\s*:\s*\"?([A-J])"
     match = re.search(pattern, raw_output)
     output = match.group(1) if match else "None"
     if validate_output_MCQA(output, num_options):
         return output, True
 
-    pattern = "\s*[Aa]?\s*\"?\s*:\s*\"{?([A-H])"
+    pattern = "\s*[Aa]?\s*\"?\s*:\s*\"{?([A-J])"
     match = re.search(pattern, raw_output)
     output = match.group(1) if match else "None"
     if validate_output_MCQA(output, num_options):
         return output, True
 
-    pattern = "\s*[Aa]?\s*\"?\s*:\s*{\"?([A-H])"
+    pattern = "\s*[Aa]?\s*\"?\s*:\s*{\"?([A-J])"
     match = re.search(pattern, raw_output)
     output = match.group(1) if match else "None"
     if validate_output_MCQA(output, num_options):
