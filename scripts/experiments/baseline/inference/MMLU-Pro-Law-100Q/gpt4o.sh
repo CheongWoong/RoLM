@@ -1,4 +1,4 @@
-dataset_name=mmlu_pro_law_q100
+dataset_name=MMLU-Pro-Law-100Q
 model_name=gpt-4o-2024-11-20
 
 max_new_tokens=512

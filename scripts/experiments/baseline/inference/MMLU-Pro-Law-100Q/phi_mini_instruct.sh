@@ -1,5 +1,5 @@
-dataset_name=mmlu_pro_law_q100
-model_name=Llama-3.1-8B
+dataset_name=MMLU-Pro-Law-100Q
+model_name=Phi-3.5-mini-instruct
 
 max_new_tokens=512
 for ps in zero-shot few-shot zero-shot-cot few-shot-cot

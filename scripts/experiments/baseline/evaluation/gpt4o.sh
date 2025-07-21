@@ -1,5 +1,5 @@
 model_name=gpt-4o-2024-11-20
-for dataset_name in 100TFQA CommonsenseQA GSM8K QASC mmlu_pro_law_q100
+for dataset_name in 100TFQA CommonsenseQA GSM8K QASC MMLU-Pro-Law-100Q
 do
     for ps in zero-shot few-shot zero-shot-cot few-shot-cot
     do
