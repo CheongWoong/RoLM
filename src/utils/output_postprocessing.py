@@ -34,7 +34,7 @@ def parse_output(raw_output, dataset_name):
         return parse_output_MCQA(raw_output, num_options=8)
     elif dataset_name in ["GSM8K"]:
         return parse_output_Math(raw_output)
-    elif dataset_name in ["mmlu_pro_law_q100"]:
+    elif dataset_name in ["MMLU-Pro-Law-100Q"]:
         return parse_output_MCQA(raw_output, num_options=10)
     else:
         raise NotImplementedError
