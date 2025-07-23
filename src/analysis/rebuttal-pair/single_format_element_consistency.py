@@ -145,7 +145,7 @@ def analyze_dataset_model_combination(
     dataset_name: str, 
     model_name: str, 
     prompting_strategy: str,
-    base_path: str = "../../../results_shared"
+    base_path: str = "../../../results"
 ) -> Dict[str, Dict[str, float]]:
     """
     Analyze single element consistency for a specific dataset-model-strategy combination.

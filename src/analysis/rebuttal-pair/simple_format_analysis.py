@@ -81,7 +81,7 @@ def main():
     prompting_strategies = ["zero-shot", "zero-shot-cot", "few-shot", "few-shot-cot"]
     
     all_combinations = []
-    base_path = "../../../results_shared"
+    base_path = "../../../results"
     
     for dataset in dataset_names:
         for model in model_names:
