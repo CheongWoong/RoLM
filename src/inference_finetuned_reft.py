@@ -102,9 +102,10 @@ if __name__ == "__main__":
                         # )
                         raise NotImplementedError
                     else:
-                        intervention_locations = torch.tensor([pyreft.get_intervention_locations(
-                            last_position=input_ids.shape[-1], positions="f7+l7",
-                            num_interventions=len(model.interventions))]).permute(1, 0, 2).tolist()
+                        # intervention_locations = torch.tensor([pyreft.get_intervention_locations(
+                        #     last_position=input_ids.shape[-1] - 1, positions="f7+l7",
+                        #     num_interventions=len(model.interventions))]).permute(1, 0, 2).tolist()
+                        intervention_locations = [[[input_ids.shape[-1] - 1]]]
 
                         _, output = model.generate(
                             {"input_ids": input_ids},

@@ -1,9 +1,5 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments, Trainer, AutoConfig
-from trl import SFTConfig, SFTTrainer, DataCollatorForCompletionOnlyLM
-# from peft import LoraConfig, get_peft_model
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import pyreft
-from datasets import Dataset
-import torch
 import argparse
 import jsonlines
 
@@ -35,10 +31,10 @@ with jsonlines.open(f"preprocessed_datasets/{DATASET_NAME}_train.jsonl") as fin:
         full_prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=False)
         sep_idx = full_prompt.find("<|start_header_id|>assistant<|end_header_id|>")
         sep_len = len("<|start_header_id|>assistant<|end_header_id|>")
-        inputs.append(full_prompt[:sep_idx+sep_len])
-        outputs.append(full_prompt[sep_idx+sep_len:])
+        inputs.append(full_prompt[:sep_idx+sep_len].strip() + "\n\n")
+        outputs.append(full_prompt[sep_idx+sep_len:].strip())
 
-# Load model in fp16 (no quantization)
+# Load model
 model = AutoModelForCausalLM.from_pretrained(
     model_id,
     # torch_dtype=torch.float16,
@@ -46,40 +42,28 @@ model = AutoModelForCausalLM.from_pretrained(
     device_map="auto"
 )
 
-# # LoRA configuration
-# peft_config = LoraConfig(
-#     r=64,
-#     lora_alpha=16,
-#     target_modules=["q_proj", "v_proj", "k_proj", "o_proj"],
-#     lora_dropout=0.1,
-#     bias="none",
-#     task_type="CAUSAL_LM"
-# )
-# model = get_peft_model(model, peft_config)
-
 reft_config = pyreft.ReftConfig(representations=[{
     "layer": l, "component": "block_output",
-    # # string component access is enforced for customized model such as a peft model!
-    # "layer": l, "component": f"base_model.model.model.layers[{l}].output",
     "low_rank_dimension": 64,
     "intervention": pyreft.LoreftIntervention(embed_dim=model.config.hidden_size,
     low_rank_dimension=64)} for l in range(model.config.num_hidden_layers)])
 reft_model = pyreft.get_reft_model(model, reft_config)
 reft_model.set_device("cuda")
-# # you need to call this to re-enable lora grads!
-# reft_model.model.enable_adapter_layers()
 reft_model.print_trainable_parameters()
 
-# train enables dropout but no grads.
-# this line might not be necessary since HF trainer enables this by default.
-reft_model.model.train()
-n_params = reft_model.count_parameters(include_model=False)
-n_params_with_model = reft_model.count_parameters(include_model=True)
-
-data_module = pyreft.make_multiple_position_supervised_data_module(
-    tokenizer, model, inputs, outputs, "f7+l7", len(reft_model.interventions)*2,
-    nonstop=True 
+# data_module = pyreft.make_multiple_position_supervised_data_module(
+#     tokenizer, model, inputs, outputs, "f7+l7", len(reft_model.interventions)*2,
+#     nonstop=True 
+# )
+data_module = pyreft.make_last_position_supervised_data_module(
+    tokenizer, model, inputs, outputs,
 )
+
+# # train enables dropout but no grads.
+# # this line might not be necessary since HF trainer enables this by default.
+# reft_model.model.train()
+# n_params = reft_model.count_parameters(include_model=False)
+# n_params_with_model = reft_model.count_parameters(include_model=True)
 
 training_args = transformers.TrainingArguments(
     output_dir=f"src/REBUTTAL_emnlp/finetuned_reft_{DATASET_NAME}",
