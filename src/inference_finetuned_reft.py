@@ -72,6 +72,7 @@ if __name__ == "__main__":
             for format_type in [str(num) for num in range(NUM_FORMATS)]:
                 # Format example
                 formatted_example = format_example(example, dataset_name, prompting_strategy, format_type=format_type)
+                # formatted_example = format_example(example, dataset_name, prompting_strategy, format_type=format_type, disable_prefilling=False) + "\""
 
                 # Save a formatted input example
                 if idx == 0:
@@ -104,7 +105,7 @@ if __name__ == "__main__":
                         intervention_locations = torch.tensor([pyreft.get_intervention_locations(
                             last_position=input_ids.shape[-1], positions="f7+l7",
                             num_interventions=len(model.interventions))]).permute(1, 0, 2).tolist()
-                        
+
                         _, output = model.generate(
                             {"input_ids": input_ids},
                             unit_locations={"sources->base": (None, intervention_locations)},

@@ -7,7 +7,8 @@ import json
 
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
-from peft import PeftModel
+# from peft import PeftModel
+import pyreft
 
 from src.utils.prompt_formatting import format_example
 from src.utils.model_map import MODEL_MAP
@@ -40,21 +41,19 @@ if __name__ == "__main__":
         model = AutoModelForCausalLM.from_pretrained(
             MODEL_MAP[model_name],
             device_map="auto",
-            torch_dtype=torch.float16,
+            torch_dtype="auto",
         )
-    peft_model_path = f"src/REBUTTAL_emnlp/finetuned_{dataset_name}/final"
-    model = PeftModel.from_pretrained(model, peft_model_path)
-    model = model.merge_and_unload()
+    reft_model_path = f"src/REBUTTAL_emnlp/finetuned_reft_{dataset_name}/final/intervenable_model"
+    model = pyreft.ReftModel.load(reft_model_path, model)
+    model.set_device("cuda")
     model.eval()
-    model.generation_config.temperature=None
-    model.generation_config.top_p=None
 
     # Create output directory
     output_dir = f"results/{dataset_name}/{model_name}"
     if args.majority_voting:
-        output_path = os.path.join(output_dir, f"{prompting_strategy}_finetuned_majority_voting_raw_predictions_validation.jsonl")
+        output_path = os.path.join(output_dir, f"{prompting_strategy}_finetuned_reft_majority_voting_raw_predictions_validation.jsonl")
     else:
-        output_path = os.path.join(output_dir, f"{prompting_strategy}_finetuned_raw_predictions_validation.jsonl")
+        output_path = os.path.join(output_dir, f"{prompting_strategy}_finetuned_reft_raw_predictions_validation.jsonl")
     os.makedirs(output_dir, exist_ok=True)
 
     input_dir = "preprocessed_datasets"
@@ -89,21 +88,28 @@ if __name__ == "__main__":
                 # Generate the output
                 with torch.no_grad():
                     if args.majority_voting:
-                        output = model.generate(
-                            input_ids,
-                            max_new_tokens=max_new_tokens,
-                            eos_token_id=tokenizer.eos_token_id,
-                            pad_token_id=tokenizer.pad_token_id if tokenizer.pad_token_id is not None else tokenizer.eos_token_id,
-                            do_sample=True,
-                            top_p=0.9,
-                            num_return_sequences=10,
-                            tokenizer=tokenizer,
-                            stop_strings=["}```", "}\n```", "}\n\n```"],
-                            return_dict_in_generate=True,
-                        )
+                        # output = model.generate(
+                        #     input_ids,
+                        #     max_new_tokens=max_new_tokens,
+                        #     eos_token_id=tokenizer.eos_token_id,
+                        #     pad_token_id=tokenizer.pad_token_id if tokenizer.pad_token_id is not None else tokenizer.eos_token_id,
+                        #     do_sample=True,
+                        #     top_p=0.9,
+                        #     num_return_sequences=10,
+                        #     tokenizer=tokenizer,
+                        #     stop_strings=["}```", "}\n```", "}\n\n```"],
+                        #     return_dict_in_generate=True,
+                        # )
+                        raise NotImplementedError
                     else:
-                        output = model.generate(
-                            input_ids,
+                        intervention_locations = torch.tensor([pyreft.get_intervention_locations(
+                            last_position=input_ids.shape[-1], positions="f7+l7",
+                            num_interventions=len(model.interventions))]).permute(1, 0, 2).tolist()
+
+                        _, output = model.generate(
+                            {"input_ids": input_ids},
+                            unit_locations={"sources->base": (None, intervention_locations)},
+                            intervene_on_prompt=True,
                             max_new_tokens=max_new_tokens,
                             eos_token_id=tokenizer.eos_token_id,
                             pad_token_id=tokenizer.pad_token_id if tokenizer.pad_token_id is not None else tokenizer.eos_token_id,
@@ -119,21 +125,21 @@ if __name__ == "__main__":
                 input_length = len(input_ids[0])
                 generated_texts = [tokenizer.decode(output_ids[input_length:], skip_special_tokens=True) for output_ids in output.sequences]
 
-                if args.save_logprobs and not args.majority_voting:
-                    logits = torch.stack(output.scores, dim=1)[0]
-                    probs = torch.nn.functional.softmax(logits, dim=-1)
-                    top_probs, top_token_ids = torch.topk(probs, 5, dim=-1)
-                    response_top_tokens, response_top_probs = [], []
-                    for i in range(len(top_probs)):
-                        top_tokens_list, top_probs_list = [], []
-                        for j in range(len(top_probs[0])):
-                            top_token = tokenizer.decode(top_token_ids[i][j])
-                            top_tokens_list.append(top_token)
-                            top_probs_list.append(top_probs[i][j].item())
-                        response_top_tokens.append(top_tokens_list)
-                        response_top_probs.append(top_probs_list)
-                    result["top_tokens"][format_type] = response_top_tokens
-                    result["top_probs"][format_type] = response_top_probs
+                # if args.save_logprobs and not args.majority_voting:
+                #     logits = torch.stack(output.scores, dim=1)[0]
+                #     probs = torch.nn.functional.softmax(logits, dim=-1)
+                #     top_probs, top_token_ids = torch.topk(probs, 5, dim=-1)
+                #     response_top_tokens, response_top_probs = [], []
+                #     for i in range(len(top_probs)):
+                #         top_tokens_list, top_probs_list = [], []
+                #         for j in range(len(top_probs[0])):
+                #             top_token = tokenizer.decode(top_token_ids[i][j])
+                #             top_tokens_list.append(top_token)
+                #             top_probs_list.append(top_probs[i][j].item())
+                #         response_top_tokens.append(top_tokens_list)
+                #         response_top_probs.append(top_probs_list)
+                #     result["top_tokens"][format_type] = response_top_tokens
+                #     result["top_probs"][format_type] = response_top_probs
 
                 # Write to result
                 result["raw_predictions"][format_type] = generated_texts
@@ -141,8 +147,3 @@ if __name__ == "__main__":
             # Write to file
             json.dump(result, fout)
             fout.write("\n")
-
-            # Save a formatted input example
-            # if idx == 0:
-            #     with open(os.path.join(output_dir, f"{prompting_strategy}_input_examples_valid.jsonl"), "w") as fout_input_examples:
-            #         fout_input_examples.write(input_examples)

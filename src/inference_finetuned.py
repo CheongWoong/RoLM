@@ -73,6 +73,7 @@ if __name__ == "__main__":
             for format_type in [str(num) for num in range(NUM_FORMATS)]:
                 # Format example
                 formatted_example = format_example(example, dataset_name, prompting_strategy, format_type=format_type)
+                # formatted_example = format_example(example, dataset_name, prompting_strategy, format_type=format_type, disable_prefilling=False) + "\""
 
                 # Save a formatted input example
                 if idx == 0:

@@ -25,7 +25,7 @@ tokenizer.pad_token = tokenizer.eos_token  # Required for padding
 #     {"input": "Translate 'hello' to Spanish.", "output": "Hola"},
 # ]
 inputs, outputs = [], []
-with jsonlines.open(f"preprocessed_datasets/{DATASET_NAME}_train_single_token.jsonl") as fin:
+with jsonlines.open(f"preprocessed_datasets/{DATASET_NAME}_train.jsonl") as fin:
     for example in fin.iter():
         messages = [
             {"role": "system", "content": "You are a helpful assistant"},

@@ -33,13 +33,7 @@ if __name__ == "__main__":
                 formatted_example = format_example(example, dataset_name, prompting_strategy, format_type=format_type, disable_prefilling=False)
                 first_idx = formatted_example.find("```json")
                 sep_idx = formatted_example.find("```json", first_idx+1)
-                inp, out = formatted_example, example["answer"]
-
-                if inp[-1] == " ":
-                    inp = inp[:-1]
-                    out = " " + out
-                    
-                # out += "```"
+                inp, out = formatted_example + "\"", example["answer"] + "\"}```"
 
                 json.dump({"input": inp, "output": out}, fout)
                 fout.write("\n")

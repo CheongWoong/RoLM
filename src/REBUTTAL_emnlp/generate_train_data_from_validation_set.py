@@ -35,7 +35,6 @@ if __name__ == "__main__":
                 sep_idx = formatted_example.find("```json", first_idx+1)
                 inp, out = formatted_example[:sep_idx], formatted_example[sep_idx:]
                 out += "\"" + example["answer"] + "\"}```"
-                # out += "```"
 
                 json.dump({"input": inp, "output": out}, fout)
                 fout.write("\n")
