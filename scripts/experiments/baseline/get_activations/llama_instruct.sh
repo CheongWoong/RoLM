@@ -1,5 +1,5 @@
 model_name=Llama-3.1-8B-Instruct
-for dataset_name in 100TFQA QASC
+for dataset_name in 100TFQA QASC MMLU-Pro-Law-100Q
 do
     for ps in zero-shot few-shot zero-shot-cot few-shot-cot
     do
