@@ -34,6 +34,8 @@ if __name__ == "__main__":
                 first_idx = formatted_example.find("```json")
                 sep_idx = formatted_example.find("```json", first_idx+1)
                 inp, out = formatted_example + "\"", example["answer"] + "\"}```"
+                # TODO: compare with the single token setting below.
+                # inp, out = formatted_example + "\"", example["answer"]
 
                 json.dump({"input": inp, "output": out}, fout)
                 fout.write("\n")
