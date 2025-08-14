@@ -1,6 +1,0 @@
-\multirow{6}{*}{CommonsenseQA}
-      & Llama-3.1-8B-Instruct & -0.42 (0.000e+00) \\
-\midrule
-\multirow{6}{*}{QASC}
-      & Llama-3.1-8B-Instruct & -0.38 (9.735e-275) \\
-\midrule
