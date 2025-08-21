@@ -3,25 +3,17 @@ from src.utils.task_instructions import INSTRUCTIONS, PROMPTING_STRATEGY_MAP, EI
 
 final_template = "{instruction}\n\n{demonstrations}{input}"
 
-demonstration_template = "{statement}{question}{options}```json {{{components}{explanation}{answer}}}```\n"
+demonstration_template = "{statement}{question}{options}```json {{{explanation}{answer}}}```\n"
 input_template = "{statement}{question}{options}{explanation}{answer}"
 
 statement_template = "{space}{statement_descriptor}{separator}{statement}\n"
 question_template = "{space}{question_descriptor}{separator}{question}\n"
 options_template = "{space}{options_descriptor}:\n{options}\n"
 fewshot_explanation_template = "\"{space}{explanation_descriptor}\"{separator}\"{explanation}\", "
-# fewshot_components_template = "\"{space}components\"{separator}\"{components}\", "
 fewshot_answer_template = "\"{space}{answer_descriptor}\"{separator}\"{answer}\""
 explanation_template = "```json {{\"{space}{explanation_descriptor}\"{separator}"
 answer_template = "```json {{\"{space}{answer_descriptor}\"{separator}"
-rar_template = "```json {{\"{space}rephrased_text\"{separator}"
-# components_template = "```json {{\"{space}components\"{separator}"
 reference_template = "{space}{reference_descriptor}{separator}{reference}\n"
-# fewshot_explanation_template = "{space}{explanation_descriptor}{separator}{explanation}\n"
-# fewshot_answer_template = "{space}{answer_descriptor}{separator}{answer}\n"
-# explanation_template = "{space}{explanation_descriptor}{separator}"
-# answer_template = "{space}{answer_descriptor}{separator}"
-# reference_answer_template = "{space}{reference_descriptor}{separator}{reference}\n{space}{answer_descriptor}{separator}"
 
 DESCRIPTORS_capitalize = {
     "statement_descriptor": "Statement",
@@ -131,7 +123,7 @@ def format_input_prompt_ext(input_example, prompting_strategy, format_data, is_d
     if is_demonstration:
         answer = e_fewshot_answer_template.format_map(format_data | input_example)
         explanation = e_fewshot_explanation_template.format_map(format_data | input_example) if "cot" in prompting_strategy else ""
-        input_prompt = demonstration_template.format(statement="", question=question, options=options, explanation=explanation, components="", answer=answer)
+        input_prompt = demonstration_template.format(statement="", question=question, options=options, explanation=explanation, answer=answer)
     else:
         explanation = ""
         answer = ""
@@ -144,13 +136,10 @@ def format_example_ext(example, dataset_name, prompting_strategy, format_num):
 
     instruction_template = EINSTRUCTIONS[dataset_name][PROMPTING_STRATEGY_MAP[prompting_strategy]]
     instruction = instruction_template.format_map(format_data)
-    if "few-shot-components" in prompting_strategy:
-        raise NotImplementedError
-    elif "few-shot" in prompting_strategy:
+    if "few-shot" in prompting_strategy:
         demonstrations = "\n".join([format_input_prompt_ext(demonstration_example, prompting_strategy, format_data, is_demonstration=True) for demonstration_example in example["demonstrations"]])+"\n" if "few-shot" in prompting_strategy else ""
     else:
         demonstrations = ""
-        # demonstrations = "\n".join([format_input_prompt(demonstration_example, prompting_strategy, format_data, is_demonstration=True) for demonstration_example in example["demonstrations"]])+"\n" if "few-shot" in prompting_strategy else ""
     input = format_input_prompt_ext(example, prompting_strategy, format_data)
     formatted_example = final_template.format(instruction=instruction, demonstrations=demonstrations, input=input)
     return formatted_example
@@ -163,11 +152,7 @@ def format_example(example, dataset_name, prompting_strategy, format_type, disab
     format_data = descriptors | FORMAT_TYPE_MAP[format_type]
 
     instruction = format_instruction_prompt(dataset_name, prompting_strategy, format_data)
-    if "few-shot-components" in prompting_strategy:
-        raise NotImplementedError
-        # demonstrations = "\n".join([format_input_prompt(demonstration_example, prompting_strategy, format_data, is_demonstration=True) for demonstration_example in components_demonstrations[dataset_name]])+"\n"
-    else:
-        demonstrations = "\n".join([format_input_prompt(demonstration_example, prompting_strategy, format_data, is_demonstration=True) for demonstration_example in example["demonstrations"]])+"\n" if "few-shot" in prompting_strategy else ""
+    demonstrations = "\n".join([format_input_prompt(demonstration_example, prompting_strategy, format_data, is_demonstration=True) for demonstration_example in example["demonstrations"]])+"\n" if "few-shot" in prompting_strategy else ""
     input = format_input_prompt(example, prompting_strategy, format_data, disable_prefilling=disable_prefilling)
     formatted_example = final_template.format(instruction=instruction, demonstrations=demonstrations, input=input)
     return formatted_example
@@ -182,11 +167,9 @@ def format_input_prompt(input_example, prompting_strategy, format_data, disable_
     question = question_template.format_map(format_data | {"question": input_example["questions"]["original"]}) if "questions" in input_example else ""
     options = options_template.format_map(format_data | {"options": format_options(input_example["options"])}) if "options" in input_example else ""
     if is_demonstration:
-        # components = fewshot_components_template.format_map(format_data | input_example) if "components" in prompting_strategy else ""
-        components = ""
         explanation = fewshot_explanation_template.format_map(format_data | input_example) if "cot" in prompting_strategy else ""
         answer = fewshot_answer_template.format_map(format_data | input_example)
-        input_prompt = demonstration_template.format(statement=statement, question=question, options=options, explanation=explanation, components=components, answer=answer)
+        input_prompt = demonstration_template.format(statement=statement, question=question, options=options, explanation=explanation, answer=answer)
     else:
         if "cot" in prompting_strategy:
             explanation = explanation_template.format_map(format_data | input_example)
@@ -196,13 +179,7 @@ def format_input_prompt(input_example, prompting_strategy, format_data, disable_
         else:
             explanation = ""
 
-        if "components" in prompting_strategy:
-            raise NotImplementedError
-            # answer = components_template.format_map(format_data | input_example)
-        elif "rar" in prompting_strategy:
-            answer = rar_template.format_map(format_data | input_example)
-        else:
-            answer = answer_template.format_map(format_data | input_example) if "cot" not in prompting_strategy else ""
+        answer = answer_template.format_map(format_data | input_example) if "cot" not in prompting_strategy else ""
 
         if disable_prefilling:
             # disable prefilling output format
