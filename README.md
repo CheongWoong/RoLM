@@ -1,5 +1,5 @@
 # RoLM
-This is the original implementation of [When Format Changes Meaning: Investigating Semantic Inconsistency of Large Language Models]() (EMNLP 2025 Findings).
+This is the original implementation of [When Format Changes Meaning: Investigating Semantic Inconsistency of Large Language Models](https://aclanthology.org/2025.findings-emnlp.143.pdf) (EMNLP 2025 Findings).
 
 ## Installation
 ### Set up a Conda environment
